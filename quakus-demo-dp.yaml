@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quakus-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quakus-demo
+  template:
+    metadata:
+      labels:
+        app: quakus-demo
+    spec:
+      containers:
+        - name: quakus-demo
+          image: namtranquoc/quarkus-demo:latest
+          imagePullPolicy: Always
+          env:
+            - name: QUARKUS_HTTP_ROOT_PATH
+              value: "/api"
+            - name: QUARKUS_DATASOURCE_DB_KIND
+              value: "postgresql"
+            - name: QUARKUS_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: username
+            - name: QUARKUS_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: password
+            - name: QUARKUS_DATASOURCE_JDBC_URL
+              value: "jdbc:postgresql://cluster-example-rw:5432/mySchema"
+            - name: QUARKUS_REDIS_HOSTS
+              value: "redis://localhost:6379"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-headless:9092"
+          ports:
+            - containerPort: 8091
+              name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quakus-demo
+spec:
+  selector:
+    app: quakus-demo
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8091
+      targetPort: 8091
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quakus-demo-ingress
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  ingressClassName: traefik
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: quakus-demo
+                port:
+                  number: 8091

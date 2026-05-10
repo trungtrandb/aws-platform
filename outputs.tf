@@ -6,18 +6,10 @@ output "nlb_dns_name" {
   value = aws_lb.main.dns_name
 }
 
-output "k3s_api_endpoint" {
-  value = "https://${aws_lb.main.dns_name}:6443"
-}
-
 output "kafka_bootstrap_endpoint" {
   value = "${aws_lb.main.dns_name}:9094"
 }
 
-output "kafka_broker_endpoints" {
-  value = [
-    "${aws_lb.main.dns_name}:9094",
-    "${aws_lb.main.dns_name}:9095",
-    "${aws_lb.main.dns_name}:9096"
-  ]
+output "demo_endpoint" {
+  value = "http://${aws_lb.main.dns_name}/api"
 }

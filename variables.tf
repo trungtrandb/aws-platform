@@ -1,9 +1,11 @@
 variable "aws_region" {
-  default = "us-east-1"
+  type        = string
+  description = "AWS region"
 }
 
 variable "instance_type" {
-  default = "c7i-flex.large"
+  type        = string
+  description = "Instance type"
 }
 
 variable "admin_cidr" {
@@ -15,4 +17,11 @@ variable "admin_cidr" {
 variable "k3s_token" {
   type        = string
   sensitive   = true
+  description = "K3s token"
+  default     = "replace-with-a-strong-random-token"
+}
+
+variable "public_key_path" {
+  type        = string
+  description = "Path to the public key"
 }

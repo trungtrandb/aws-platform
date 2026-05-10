@@ -75,5 +75,5 @@ resource "aws_instance" "public" {
 
 resource "aws_key_pair" "my_key" {
   key_name   = "${local.project}-key"
-  public_key = file(pathexpand("~/.ssh/id_rsa.pub"))
+  public_key = file(pathexpand(var.public_key_path))
 }
