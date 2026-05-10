@@ -1,0 +1,39 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cluster-example
+spec:
+  instances: 3
+  managed:
+    services:
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: cluster-example-external
+            spec:
+              type: LoadBalancer
+              ports:
+                - name: postgres
+                  port: 5432
+                  targetPort: 5432
+  postgresql:
+    shared_preload_libraries:
+      - vector
+  bootstrap:
+    initdb:
+      database: mySchema
+      owner: app
+      secret:
+        name: app-secret
+  storage:
+    size: 1Gi
+---
+apiVersion: v1
+data:
+  username: YXBw #(app)
+  password: cGFzc3dvcmQ= #(password)
+kind: Secret
+metadata:
+  name: app-secret
+type: kubernetes.io/basic-auth
